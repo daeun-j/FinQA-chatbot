@@ -1,0 +1,47 @@
+# FinQA Chatbot Configuration
+
+model:
+  name: "Qwen/Qwen2.5-7B-Instruct-AWQ"
+  vllm_base_url: "http://localhost:8000/v1"
+  max_tokens: 1024
+  temperature: 0.1
+
+embedding:
+  model_name: "BAAI/bge-base-en-v1.5"
+  dimension: 768
+  batch_size: 256          # bump for GPU throughput
+
+reranker:
+  model_name: "BAAI/bge-reranker-v2-m3"
+  enabled: true
+
+chunking:
+  min_chars: 250           # fewer, denser chunks (~7-8/doc instead of 17)
+
+retrieval:
+  top_k: 3                # final docs returned to the agent
+  dense_top_n: 100        # chunks pulled from FAISS before fusion
+  bm25_top_n: 100         # chunks pulled from BM25 before fusion
+  rerank_top_n: 50        # chunks the cross-encoder scores after fusion
+  rrf_k: 60               # RRF constant (Cormack et al. 2009)
+  aggregation: "count"    # "first_seen" (rank-based) or "count" (chunk-vote)
+  count_top_n: 20         # how many top chunks vote when aggregation == count
+  index_path: "data/faiss_index"
+  chunks_path: "data/processed/chunks.pkl"
+  docs_path: "data/processed/documents.pkl"
+  bm25_path: "data/processed/bm25.pkl"
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  train_file: "train.json"
+  dev_file: "dev.json"
+  test_file: "test.json"
+
+agent:
+  max_iterations: 3
+  num_few_shot: 5
+
+gradio:
+  server_port: 7860
+  share: false
